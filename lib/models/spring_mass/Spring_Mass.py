@@ -1,3 +1,12 @@
+'''导入必要的库：
+os, torch, torch.nn, numpy 用于基础操作和神经网络构建。
+colored 用于在日志中显示彩色文本。
+deepcopy 用于创建对象的深拷贝。
+knn_points 用于计算最近邻点。
+SIMULATOR 用于注册模拟器模块。
+logger 用于记录信息。
+param_size 用于计算模型参数的数量。
+init_weights 用于初始化模型权重。'''
 import os
 import torch
 import torch.nn as nn
@@ -11,10 +20,15 @@ from lib.utils.logger import logger
 from lib.utils.misc import param_size
 from lib.utils.net_utils import init_weights
 
-
+'''注册模拟器模块：
+使用 @SIMULATOR.register_module() 装饰器将 Spring_Mass 类注册为一个模拟器模块'''
 @SIMULATOR.register_module()
 class Spring_Mass(nn.Module):
 
+'''初始化函数 __init__：
+接受配置 cfg，初始位置 xyz，初始速度 init_velocity（可选），以及重力 load_g（可选）。
+初始化模型参数，包括弹性系数、阻尼系数、重力等，并根据配置设置这些参数是否可训练。
+调用 initialize 方法来设置初始状态。'''
     def __init__(self, cfg, xyz: torch.Tensor, init_velocity=None, load_g=None) -> None:
         super().__init__()
         self.name = type(self).__name__
@@ -157,6 +171,9 @@ class Spring_Mass(nn.Module):
         logger.info(f"{self.name} got stretch_ratios: {self.stretch_ratios} with ratio_factor: {self.ratio_factor}")
         init_weights(self, pretrained=cfg.PRETRAINED, strict=True)
 
+'''初始化方法 initialize：
+设置设备、点的数量、初始位置和初始速度。
+使用 knn 方法计算每个点的最近邻点。'''
     def initialize(self, xyz: torch.Tensor):
         self.device = xyz.device
         self.n_points = xyz.shape[0]
@@ -167,6 +184,8 @@ class Spring_Mass(nn.Module):
 
         logger.info(f"{self.name} got {colored(self.n_points, 'yellow', attrs=['bold'])} points")
 
+'''训练速度设置 trainging_velocity_setup：
+根据训练参数设置初始速度的优化器。'''
     def trainging_velocity_setup(self, training_args):
         l = [{'params': [self.init_velocity], 'lr': training_args.INIT_VELOCITY_LR, "name": "init_velocity"}]
         if self.optim_g:
@@ -178,6 +197,8 @@ class Spring_Mass(nn.Module):
                                                          step_size=training_args.LR_DECAY_STEP,
                                                          gamma=training_args.LR_DECAY_RATE)
 
+'''训练设置 training_setup：
+根据训练参数设置模型参数的优化器。'''
     def training_setup(self, training_args):
         l = [{
             'params': [self.global_k],
@@ -210,6 +231,8 @@ class Spring_Mass(nn.Module):
         self.optimizer = torch.optim.Adam(l, lr=0.0, eps=1e-15)
         self.scheduler = None
 
+'''KNN 方法 knn：
+计算给定点集的最近邻点，返回距离、索引和邻居点的位置'''
     def knn(self, x: torch.Tensor, ref: torch.Tensor, k, rm_self=False, sqrt_dist=True):
         """
         :param 
@@ -236,6 +259,8 @@ class Spring_Mass(nn.Module):
         else:
             return dist, knn_dix, x_neighbor
 
+'''设置所有粒子 set_all_particle：
+设置所有粒子的初始状态，并计算插值系数。'''
     def set_all_particle(self, xyz_all: torch.Tensor):
         self.init_xyz_all = xyz_all.detach().clone()
         self.n_all = self.init_xyz_all.shape[0]
@@ -246,6 +271,8 @@ class Spring_Mass(nn.Module):
         assert self.intrp_coef.sum().int() == self.init_xyz_all.shape[0], \
             "if report an error here, decrease K_BINDING can help"
 
+'''插值方法 interpolate：
+根据插值系数和变化量更新所有粒子的位置。'''
     def interpolate(self, xyz_all: torch.Tensor, xyz_before: torch.Tensor, delta_xyz: torch.Tensor):
         delta_knn = delta_xyz[self.intrp_index]  # [N, n, 3]
         if self.stage == 'velocity':
@@ -261,7 +288,8 @@ class Spring_Mass(nn.Module):
             raise ValueError()
 
         return xyz_all
-
+'''计算力 compute_force：
+根据当前位置和速度计算弹簧力。'''
     def compute_force(self, xyz, v, K, damp):
         knn_xyz = xyz[self.knn_index]  # [N, k, 3]
         delta_pos = knn_xyz - xyz.unsqueeze(1)  # [N, k, 3]
@@ -289,6 +317,8 @@ class Spring_Mass(nn.Module):
 
         return force.sum(dim=1)
 
+'''应用边界条件 apply_bc：
+应用边界条件，如固定地面或其他约束。'''
     def apply_bc(self, xyz, v, rebound_k, fric_k):
         # Boundary condition
         if self.inverse_axis:
@@ -305,6 +335,8 @@ class Spring_Mass(nn.Module):
 
         return xyz, v
 
+'''应用边界条件力 apply_bc_force：
+应用边界条件力，如摩擦力。'''
     def apply_bc_force(self, force, xyz, v, fric_k):
         k_bc = 10**self.k_bc / (self.origin_len.mean() + self.eps)
 
@@ -334,6 +366,8 @@ class Spring_Mass(nn.Module):
 
         return force, xyz, v
 
+'''可视化步骤 viz_step：
+可视化当前步骤的粒子位置和速度。'''
     @torch.no_grad()
     def viz_step(self, xyz, v, K, damp, frame_id, **kwargs):
         import cv2
@@ -375,6 +409,8 @@ class Spring_Mass(nn.Module):
         comb_image = np.hstack(img_list)
         imageio.imwrite(os.path.join(viz_force_dir, f"{frame_id:02}.png"), comb_image)
 
+'''步骤更新 step：
+更新粒子的位置和速度，包括力的计算和边界条件的应用。'''
     def step(self, xyz, v, K, m, rebound_k, fric_k, damp, dt):
         """
         :param
@@ -408,6 +444,8 @@ class Spring_Mass(nn.Module):
 
         return xyz, v
 
+'''设置时间步长 set_dt：
+设置模拟的时间步长。'''
     def set_dt(self, freq=None, dt=None):
         if (freq is not None and dt is not None) or (freq is None and dt is None):
             assert False
@@ -416,6 +454,8 @@ class Spring_Mass(nn.Module):
         if dt is not None:
             self.dt = dt
 
+'''前向传播函数 forward：
+执行模拟的前向传播，包括力的计算、位置和速度的更新，以及可视化（如果需要）。'''
     def forward(self, xyz_all: torch.Tensor, xyz: torch.Tensor, v: torch.Tensor, frame_id: int, viz=False, **kwargs):
         assert frame_id > 0
 

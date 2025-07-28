@@ -1,134 +1,133 @@
-STATIC:
-  ITERATIONS: 30000
-  TEST_ITERATIONS: [7000, 30000]
-  SAVE_ITERATIONS: [7000, 30000]
-  VIZ_INTERVAL: 10000
-  CHECKPOINT_ITERATIONS: [30000]
-  POSITION_LR_INIT: 0.00016
-  POSITION_LR_FINAL: 0.0000016
-  POSITION_LR_DELAT_MULT: 0.01
-  POSITION_LR_MAX_STEPS: 30000
-  COLOR_LR_INIT: 0.0025
-  FEATURE_LR: 0.0025
-  OPACITY_LR: 0.05
-  SCALING_LR: 0.005
-  ROTATION_LR: 0.001
-  PERCENT_DENSE: 0.01
-  LAMBDA_DSSIM: 0.2
-  DENSIFICATION_INTERVAL: 100
-  OPACITY_RESET_INTERVAL: 3000
-  DENSIFY_FROM_ITER: 500
-  DENSIFY_UNTIL_ITER: 15000
-  DENSIFY_GRAD_THRESHOLD: 0.0002
-  SH_DEGREE: 3
-  GRAD_SHRESHOLD: 0.005
-  CONST_SCALE: 0.003
+STATIC:  # 静态场景重建参数
+  ITERATIONS: 30000  # 总训练迭代次数
+  TEST_ITERATIONS: [7000, 30000]  # 在指定迭代次数进行测试
+  SAVE_ITERATIONS: [7000, 30000]  # 在指定迭代保存模型
+  VIZ_INTERVAL: 10000  # 可视化间隔
+  CHECKPOINT_ITERATIONS: [30000]  # 检查点保存位置
+  POSITION_LR_INIT: 0.00016  # 初始位置学习率
+  POSITION_LR_FINAL: 0.0000016  # 最终位置学习率
+  POSITION_LR_DELAT_MULT: 0.01  # 位置学习率衰减乘数
+  POSITION_LR_MAX_STEPS: 30000  # 位置学习率调整步数
+  COLOR_LR_INIT: 0.0025  # 颜色学习率
+  FEATURE_LR: 0.0025  # 特征学习率
+  OPACITY_LR: 0.05  # 透明度学习率
+  SCALING_LR: 0.005  # 缩放学习率
+  ROTATION_LR: 0.001  # 旋转学习率
+  PERCENT_DENSE: 0.01  # 高斯密度百分比
+  LAMBDA_DSSIM: 0.2  # 结构相似性损失权重
+  DENSIFICATION_INTERVAL: 100  # 高斯加密间隔
+  OPACITY_RESET_INTERVAL: 3000  # 透明度重置间隔
+  DENSIFY_FROM_ITER: 500  # 开始加密的迭代
+  DENSIFY_UNTIL_ITER: 15000  # 停止加密的迭代
+  DENSIFY_GRAD_THRESHOLD: 0.0002  # 加密梯度阈值
+  SH_DEGREE: 3  # 球谐函数阶数
+  GRAD_SHRESHOLD: 0.005  # 梯度裁剪阈值
+  CONST_SCALE: 0.003  # 初始高斯尺度常数
 
-SEED: 123
-REAL: False
+SEED: 123  # 随机种子
+REAL: False  # 是否使用真实数据
 
-VELOCITY:
-  TYPE: Spring_Mass
-  PRETRAINED: null
-  ITERATIONS: 100
-  ITER_REFINE: 3000
-  REFINE_VIZ_INTERVAL: 1000
-  SAVE_INTERVAL: 100
-  VIZ_INTERVAL: 100
-  INIT_VELOCITY: [0, 0, 0]
-  G: [0, -9.8, 0]
+VELOCITY:  # 速度估计参数
+  TYPE: Spring_Mass  # 物理模型类型（弹簧质点）
+  PRETRAINED: null  # 预训练模型路径
+  ITERATIONS: 100  # 优化迭代次数
+  ITER_REFINE: 3000  # 细化阶段迭代次数
+  REFINE_VIZ_INTERVAL: 1000  # 细化阶段可视化间隔
+  SAVE_INTERVAL: 100  # 模型保存间隔
+  VIZ_INTERVAL: 100  # 可视化间隔
+  INIT_VELOCITY: [0, 0, 0]  # 初始速度向量
+  G: [0, -9.8, 0]  # 重力加速度向量
 
-  K_NEIGHBORS: 256
-  K_BINDING: 16
-  N_SAMPLE: 2048
-  N_STEP: 100
-  STEP_ADD: 100
-  MAX_N_STEP: 500
-  N_STEP_ITER: [200, ]
+  K_NEIGHBORS: 256  # 邻居点数量
+  K_BINDING: 16  # 绑定约束数量
+  N_SAMPLE: 2048  # 采样点数量
+  N_STEP: 100  # 物理模拟步数
+  STEP_ADD: 100  # 每次增加的步数
+  MAX_N_STEP: 500  # 最大模拟步数
+  N_STEP_ITER: [200, ]  # 分阶段训练步数
 
-  LAMBDA_DSSIM: 0.2
-  LAMBDA_SMOOTH: 0.0
-  LAMBDA_CENTER: 0.0
-  LAMBDA_PERCEP: 0.0
-  OPTIMIZE:
-    INIT_VELOCITY_LR: 0.001
-    LR_DECAY_STEP: 100
-    LR_DECAY_RATE: 0.5
-    G_LR: 0.001
+  LAMBDA_DSSIM: 0.2  # 结构相似性损失权重
+  LAMBDA_SMOOTH: 0.0  # 平滑损失权重（未启用）
+  LAMBDA_CENTER: 0.0  # 中心损失权重（未启用）
+  LAMBDA_PERCEP: 0.0  # 感知损失权重（未启用）
+  OPTIMIZE:  # 优化器参数
+    INIT_VELOCITY_LR: 0.001  # 初始速度学习率
+    LR_DECAY_STEP: 100  # 学习率衰减步长
+    LR_DECAY_RATE: 0.5  # 衰减率
+    G_LR: 0.001  # 重力学习率
 
-  GAUS_CFG:
-    OPTIM_GAUS: False
+  GAUS_CFG:  # 高斯模型配置
+    OPTIM_GAUS: False  # 是否优化高斯参数
 
-  GAUS_REFINE:
-    OPTIM_GAUS: True
-    POSITION_LR_FINAL: 0.0000016
-    COLOR_LR_INIT: 0.0025
-    OPACITY_LR: 0.05
-    SCALING_LR: 0.005
+  GAUS_REFINE:  # 高斯细化参数
+    OPTIM_GAUS: True  # 启用高斯优化
+    POSITION_LR_FINAL: 0.0000016  # 最终位置学习率
+    COLOR_LR_INIT: 0.0025  # 颜色学习率
+    OPACITY_LR: 0.05  # 透明度学习率
+    SCALING_LR: 0.005  # 缩放学习率
 
-  FITTING: True
-  FIX_MASS: True
-  FIX_K: True
-  DAMPING: False
-  UNLINEAR_FORCE: True
-  OPTIM_G: False
-  SOFT_K: False
+  FITTING: True  # 启用物理拟合
+  FIX_MASS: True  # 固定质量参数
+  FIX_K: True  # 固定弹性系数
+  DAMPING: False  # 禁用阻尼
+  UNLINEAR_FORCE: True  # 启用非线性力
+  OPTIM_G: False  # 禁用重力优化
+  SOFT_K: False  # 禁用软约束
 
+DYNAMIC:  # 动态模拟参数
+  TYPE: Spring_Mass  # 物理模型类型
+  PRETRAINED: null  # 预训练模型
+  ITERATIONS: 300  # 总迭代次数
+  ITER_REFINE: 3000  # 细化迭代次数
+  REFINE_VIZ_INTERVAL: 1000  # 细化可视化间隔
+  SAVE_INTERVAL: 100  # 保存间隔
+  VIZ_INTERVAL: 100  # 可视化间隔
 
-DYNAMIC:
-  TYPE: Spring_Mass
-  PRETRAINED: null
-  ITERATIONS: 300
-  ITER_REFINE: 3000
-  REFINE_VIZ_INTERVAL: 1000
-  SAVE_INTERVAL: 100
-  VIZ_INTERVAL: 100
+  LAMBDA_DSSIM: 0.05  # 结构相似性损失权重
+  LAMBDA_SMOOTH: 0.0  # 平滑损失权重
+  LAMBDA_CENTER: 0.0  # 中心损失权重
+  LAMBDA_PERCEP: 0.0  # 感知损失权重
+  OPTIMIZE:  # 优化器参数
+    K_LR: 0.001  # 弹性系数学习率
+    M_LR: 0.001  # 质量学习率
+    FRIC_K_LR: 0.001  # 摩擦系数学习率
+    REBOUND_K_LR: 0.001  # 反弹系数学习率
+    DAMPING_LR: 0.0001  # 阻尼学习率
+    INIT_VELOCITY_LR: 0.00025  # 初始速度学习率
+    INTERP_LR: 0.001  # 插值学习率
+    G_LR: 0.0001  # 重力学习率
+    SOFT_LR: 0.001  # 软约束学习率
+    K_BC_LR: 0.001  # 边界条件学习率
 
-  LAMBDA_DSSIM: 0.05
-  LAMBDA_SMOOTH: 0.0
-  LAMBDA_CENTER: 0.0
-  LAMBDA_PERCEP: 0.0
-  OPTIMIZE:
-    K_LR: 0.001
-    M_LR: 0.001
-    FRIC_K_LR: 0.001
-    REBOUND_K_LR: 0.001
-    DAMPING_LR: 0.0001
-    INIT_VELOCITY_LR: 0.00025
-    INTERP_LR: 0.001
-    G_LR: 0.0001
-    SOFT_LR: 0.001
-    K_BC_LR: 0.001
+  GAUS_CFG:  # 高斯配置
+    OPTIM_GAUS: True  # 启用高斯优化
+    POSITION_LR_FINAL: 0.0000016  # 位置学习率
+    COLOR_LR_INIT: 0.0025  # 颜色学习率
+    OPACITY_LR: 0.05  # 透明度学习率
+    SCALING_LR: 0.005  # 缩放学习率
 
-  GAUS_CFG:
-    OPTIM_GAUS: True
-    POSITION_LR_FINAL: 0.0000016
-    COLOR_LR_INIT: 0.0025
-    OPACITY_LR: 0.05
-    SCALING_LR: 0.005
+  K_NEIGHBORS: 256  # 邻居点数量
+  K_BINDING: 16  # 绑定约束数
+  N_SAMPLE: 2048  # 采样点数
+  N_STEP: 100  # 模拟步数
+  STEP_ADD: 50  # 步长增量
+  MAX_N_STEP: 500  # 最大模拟步数
+  N_STEP_ITER: [100, 200]  # 分阶段训练步数
+  G: [0, -9.8, 0]  # 重力向量
+  STRETCH_RATIOS: 0.05  # 拉伸比阈值
+  RATIO_FACTOR: 1  # 比例因子
+  POWER: 0.5  # 力计算指数
 
-  K_NEIGHBORS: 256
-  K_BINDING: 16
-  N_SAMPLE: 2048
-  N_STEP: 100
-  STEP_ADD: 50
-  MAX_N_STEP: 500
-  N_STEP_ITER: [100, 200]
-  G: [0, -9.8, 0]
-  STRETCH_RATIOS: 0.05
-  RATIO_FACTOR: 1
-  POWER: 0.5
-
-  FITTING: True
-  DAMPING: True
-  FIX_MASS: True
-  FIX_DAMP: True
-  FIX_K: True
-  UNLINEAR_FORCE: True
-  OPTIM_G: False
-  SOFT_K: True
-  SPRING_BC: False
-  OPTIM_DY_VELOCITY: False
-  OPTIM_FIXED_DAMP: False
-  SINGLE_K: False
-  N_FIX_SPRING: 16
+  FITTING: True  # 启用物理拟合
+  DAMPING: True  # 启用阻尼
+  FIX_MASS: True  # 固定质量
+  FIX_DAMP: True  # 固定阻尼
+  FIX_K: True  # 固定弹性系数
+  UNLINEAR_FORCE: True  # 启用非线性力
+  OPTIM_G: False  # 禁用重力优化
+  SOFT_K: True  # 启用软约束
+  SPRING_BC: False  # 禁用弹簧边界条件
+  OPTIM_DY_VELOCITY: False  # 禁用动态速度优化
+  OPTIM_FIXED_DAMP: False  # 禁用固定阻尼优化
+  SINGLE_K: False  # 禁用单一弹性系数
+  N_FIX_SPRING: 16  # 固定弹簧数量

@@ -27,24 +27,24 @@ STATIC:
 SEED: 123
 REAL: False
 
-REGIST:
-  ITERATIONS: 20000
-  VIZ_INTERVAL: 2000
-  LAMBDA_DSSIM: 0.0
-  R_LR: 0.0001
-  T_LR: 0.00005
-  S_LR: 0.00001
+REGIST:  # 点云配准相关参数（real-capture 特有）
+  ITERATIONS: 20000        # 配准迭代次数
+  VIZ_INTERVAL: 2000       # 可视化间隔
+  LAMBDA_DSSIM: 0.0        # 禁用结构相似性损失
+  R_LR: 0.0001             # 旋转学习率
+  T_LR: 0.00005            # 平移学习率
+  S_LR: 0.00001            # 缩放学习率
 
 VELOCITY:
   TYPE: Spring_Mass
   PRETRAINED: null
-  ITERATIONS: 300
-  ITER_REFINE: 0
+  ITERATIONS: 300 # ↑ 从 100 增加到 300（更精细的速度优化）
+  ITER_REFINE: 0 # ↓ 从 3000 降为 0（禁用细化阶段）
   REFINE_VIZ_INTERVAL: 1000
   SAVE_INTERVAL: 100
   VIZ_INTERVAL: 100
-  INIT_VELOCITY: [0, 0, 3]
-  G: [0, 0, 9.8]
+  INIT_VELOCITY: [0, 0, 3] # ↑ 初始 Z 轴速度从 0→3（真实捕获的运动特征）
+  G: [0, 0, 9.8] # ↑ 重力方向从 Y 轴→Z 轴（适应真实场景坐标系）
 
   K_NEIGHBORS: 256
   K_BINDING: 16
@@ -54,15 +54,15 @@ VELOCITY:
   MAX_N_STEP: 500
   N_STEP_ITER: [200, ]
 
-  LAMBDA_DSSIM: 0.8
+  LAMBDA_DSSIM: 0.8  # ↑ 从 0.2→0.8（更强调图像质量）
   LAMBDA_SMOOTH: 0.0
-  LAMBDA_CENTER: 1.0
+  LAMBDA_CENTER: 1.0 # ↑ 从 0.0→1.0（新增中心约束损失）
   LAMBDA_PERCEP: 0.0
   OPTIMIZE:
     INIT_VELOCITY_LR: 0.001
     LR_DECAY_STEP: 100
     LR_DECAY_RATE: 0.5
-    G_LR: 0.00005
+    G_LR: 0.00005 # ↓ 从 0.001→0.00005（更小的重力学习率）
 
   GAUS_CFG:
     OPTIM_GAUS: False
@@ -74,28 +74,28 @@ VELOCITY:
     OPACITY_LR: 0.05
     SCALING_LR: 0.005
 
-  FITTING: True
+  FITTING: True  # → 保持启用物理拟合
   FIX_MASS: True
   FIX_K: True
   DAMPING: False
   UNLINEAR_FORCE: True
-  OPTIM_G: True
+  OPTIM_G: True # ↑ 从 False→True（启用重力优化）
   SOFT_K: False
 
 
 DYNAMIC:
   TYPE: Spring_Mass
   PRETRAINED: null
-  ITERATIONS: 200
-  ITER_REFINE: 0
+  ITERATIONS: 200          # ↓ 从 300→200（减少迭代次数）
+  ITER_REFINE: 0           # ↓ 从 3000→0（禁用细化阶段）
   REFINE_VIZ_INTERVAL: 1000
   SAVE_INTERVAL: 100
   VIZ_INTERVAL: 100
 
-  LAMBDA_DSSIM: 0.8
+  LAMBDA_DSSIM: 0.8 # ↑ 从 0.05→0.8（大幅提高图像质量权重）
   LAMBDA_SMOOTH: 0.0
-  LAMBDA_CENTER: 1.0
-  LAMBDA_PERCEP: 0.1
+  LAMBDA_CENTER: 1.0       # ↑ 从 0.0→1.0（新增中心约束损失）
+  LAMBDA_PERCEP: 0.1       # ↑ 从 0.0→0.1（新增感知损失）
   OPTIMIZE:
     K_LR: 0.001
     M_LR: 0.001
@@ -109,7 +109,7 @@ DYNAMIC:
     K_BC_LR: 0.001
 
   GAUS_CFG:
-    OPTIM_GAUS: False
+    OPTIM_GAUS: False # ↓ 从 True→False（禁用高斯优化）
 
   K_NEIGHBORS: 256
   K_BINDING: 16
@@ -118,21 +118,21 @@ DYNAMIC:
   STEP_ADD: 50
   MAX_N_STEP: 500
   N_STEP_ITER: [100, 200]
-  G: [0, 0, 9.8]
+  G: [0, 0, 9.8]  # ↑ 重力方向从 Y 轴→Z 轴（适应真实场景）
   STRETCH_RATIOS: 0.05
   RATIO_FACTOR: 1
   POWER: 0.5
 
-  FITTING: True
+  FITTING: True # → 保持物理拟合
   DAMPING: True
   FIX_MASS: True
   FIX_DAMP: True
   FIX_K: True
   UNLINEAR_FORCE: True
-  OPTIM_G: True
+  OPTIM_G: True # ↑ 从 False→True（启用重力优化）
   SOFT_K: True
   SPRING_BC: False
-  OPTIM_DY_VELOCITY: True
-  OPTIM_FIXED_DAMP: True
+  OPTIM_DY_VELOCITY: True  # ↑ 从 False→True（启用动态速度优化）
+  OPTIM_FIXED_DAMP: True   # ↑ 从 False→True（启用固定阻尼优化）
   SINGLE_K: False
   N_FIX_SPRING: 16
